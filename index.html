@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>أذكاري زادي وعتادي | منصة المتابعة وتقارير أولياء الأمور - الملهم التربوي وإتقان التربية</title>
+  <meta name="description" content="منصة أذكاري زادي وعتادي - برنامج الملهم التربوي (أ. محمد الدقن) بالتعاون مع إتقان التربية. متابعة يومية، تقارير أداء للطلاب، وروابط مباشرة لأولياء الأمور.">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="logo-itqan.png">
+  
+  <!-- Google Fonts: Cairo, Amiri, Reem Kufi -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;700;800;900&family=Reem+Kufi:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Canvas Confetti for Celebration -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Aura & Islamic Ornament -->
+  <div class="bg-pattern"></div>
+  <div class="bg-glow glow-1"></div>
+  <div class="bg-glow glow-2"></div>
+
+  <!-- Top Announcement & Student Bar -->
+  <div class="top-ticker">
+    <div class="container ticker-container">
+      <div class="ticker-badge"><i class="fa-solid fa-sparkles"></i> نفحات إيمانية</div>
+      <div class="ticker-content" id="tickerQuote">
+        «مثل الذي يذكر ربه والذي لا يذكر ربه، مثل الحي والميت» - متفق عليه
+      </div>
+      <div class="ticker-actions">
+        <span id="currentDateHijri" class="hijri-pill"></span>
+        <button id="themeToggleBtn" class="icon-btn-sm" title="تبديل المظهر">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Student Profile Bar (NEW) -->
+  <div class="student-bar-strip">
+    <div class="container student-bar-flex">
+      <div class="active-student-pill">
+        <div class="student-avatar"><i class="fa-solid fa-user-graduate"></i></div>
+        <div class="student-pill-info">
+          <span class="pill-label">الطالب الحالي النشط:</span>
+          <strong id="activeStudentNameHeader">طالب تجريبي</strong>
+          <span class="pill-grade" id="activeStudentGradeHeader">(الصف الخامس الابتدائي)</span>
+        </div>
+      </div>
+
+      <div class="student-bar-actions">
+        <button class="s-action-btn btn-parent-share" id="openParentShareBtn" title="رابط ولي الأمر للمتابعة">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span>رابط ولي الأمر</span>
+        </button>
+
+        <button class="s-action-btn btn-report-view" id="openStudentReportBtn" title="تقرير الطالب والشهادة">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>تقرير الطالب</span>
+        </button>
+
+        <button class="s-action-btn btn-switch-student" id="openSwitchStudentBtn" title="تغيير الطالب أو إضافة طالب جديد">
+          <i class="fa-solid fa-users-gear"></i>
+          <span>إدارة الطلاب</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parent View Notification Banner (Shown when loaded via parent link) -->
+  <div class="parent-welcome-banner" id="parentWelcomeBanner" style="display: none;">
+    <div class="container pwb-content">
+      <div class="pwb-text">
+        <i class="fa-solid fa-hand-holding-heart pwb-icon"></i>
+        <div>
+          <h3>مرحباً بكم يا ولي أمر الطالب: <span id="pwbStudentName" class="text-gold"></span></h3>
+          <p>يسعدنا متابعتكم لترديد ورد الأذكار اليومي ضمن برنامج <strong>«أذكاري زادي وعتادي»</strong> بغرس حب ذكر الله في قلب ابنكم/ابنتكم.</p>
+        </div>
+      </div>
+      <div class="pwb-action">
+        <button class="btn-parent-confirm" id="parentConfirmRecitationBtn">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>تأكيد قراءة الطالب للورد اليوم</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation / Header -->
+  <header class="main-header">
+    <div class="container header-content">
+      <!-- Logos Section -->
+      <div class="header-branding">
+        <div class="brand-item">
+          <img src="logo-itqan.png" alt="شعار إتقان التربية" class="brand-logo itqan-logo">
+        </div>
+        <div class="brand-divider"></div>
+        <div class="brand-item">
+          <img src="logo-molhem.png" alt="شعار الملهم التربوي - أ. محمد الدقن" class="brand-logo molhem-logo">
+        </div>
+      </div>
+
+      <!-- Center Title -->
+      <div class="program-title-box">
+        <div class="super-badge">برنامج الإذاعة الصباحية المعتمد • لجميع المراحل الدراسية</div>
+        <h1 class="main-title">
+          <span class="gradient-text">أذكاري زادي وعتادي</span>
+        </h1>
+        <p class="sub-lead">
+          من برامج <span class="highlight-lead">الملهم التربوي</span> — إعداد وإشراف: <span class="teacher-name">أ. محمد الدقن</span> | بالتعاون مع مدارس <span class="school-name">إتقان التربية</span>
+        </p>
+      </div>
+
+      <!-- Quick Actions / Live Status -->
+      <div class="header-controls">
+        <button class="btn-broadcast" id="openBroadcastModalBtn">
+          <i class="fa-solid fa-chalkboard-user"></i>
+          <span>وضع الإذاعة</span>
+        </button>
+        <button class="btn-admin-reports" id="openAdminDashboardBtn">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>لوحة التقارير العامة</span>
+        </button>
+        <button class="btn-primary-ghost" id="openPrintModalBtn">
+          <i class="fa-solid fa-print"></i>
+          <span>طباعة البطاقة</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Program Identity & Targets Strip -->
+  <section class="identity-strip">
+    <div class="container">
+      <div class="identity-grid">
+        <div class="identity-card">
+          <div class="id-icon"><i class="fa-solid fa-bullseye"></i></div>
+          <div class="id-info">
+            <span class="id-label">الهدف العام للبرنامج</span>
+            <span class="id-value">حتى يدرك الطالب أهمية الذكر وأنه يقربه إلى الله</span>
+          </div>
+        </div>
+
+        <div class="identity-card">
+          <div class="id-icon"><i class="fa-solid fa-users"></i></div>
+          <div class="id-info">
+            <span class="id-label">الفئة المستهدفة</span>
+            <span class="id-value">جميع المراحل الدراسية (بنين وبنات)</span>
+          </div>
+        </div>
+
+        <div class="identity-card">
+          <div class="id-icon"><i class="fa-solid fa-microphone-lines"></i></div>
+          <div class="id-info">
+            <span class="id-label">الجهة المنفذة</span>
+            <span class="id-value">مقدم الإذاعة الصباحية والطلاب وأولياء الأمور</span>
+          </div>
+        </div>
+
+        <div class="identity-card">
+          <div class="id-icon"><i class="fa-solid fa-calendar-check"></i></div>
+          <div class="id-info">
+            <span class="id-label">زمن ومكان التنفيذ</span>
+            <span class="id-value">مستمر يومياً (في الإذاعة الصباحية والبيت)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Body -->
+  <main class="main-wrapper">
+    <div class="container">
+
+      <!-- Week Selector Navigation Tabs -->
+      <div class="week-nav-container">
+        <div class="week-nav-header">
+          <div class="week-title-wrap">
+            <i class="fa-solid fa-calendar-days text-gold"></i>
+            <h3>جدول خطة الأذكار المعتمد (16 أسبوعاً)</h3>
+          </div>
+          <div class="nav-extra-tags">
+            <span class="cycle-pill active-cycle"><i class="fa-solid fa-check-circle"></i> يتحدث باستمرار</span>
+            <span class="cycle-pill" id="autoWeekNotice"><i class="fa-solid fa-clock"></i> الأسبوع المتزامن تلقائياً</span>
+          </div>
+        </div>
+
+        <!-- Scrollable Week Buttons -->
+        <div class="weeks-slider" id="weeksSlider">
+          <!-- Dynamically Generated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- Active Dhikr Hero Showcase -->
+      <section class="hero-dhikr-section" id="activeDhikrSection">
+        <div class="dhikr-card-glow"></div>
+        <div class="dhikr-card-main">
+          
+          <!-- Card Header -->
+          <div class="dhikr-header">
+            <div class="week-tag">
+              <span class="tag-icon"><i class="fa-solid fa-star-and-crescent"></i></span>
+              <span id="activeWeekLabel">الأسبوع الأول - الثاني</span>
+            </div>
+            
+            <div class="dhikr-meta-badges">
+              <span class="target-badge"><i class="fa-solid fa-repeat"></i> الترديد اليومي: <strong id="activeTargetCount">3 مرات</strong></span>
+              <span class="status-badge" id="dailyStatusBadge"><i class="fa-solid fa-circle"></i> لم يكتمل اليوم</span>
+            </div>
+          </div>
+
+          <!-- Main Dhikr Text Box -->
+          <div class="dhikr-text-container">
+            <div class="quote-mark top"><i class="fa-solid fa-quote-right"></i></div>
+            <div class="dhikr-content" id="activeDhikrText">
+              <!-- Inserted via JS -->
+            </div>
+            <div class="quote-mark bottom"><i class="fa-solid fa-quote-left"></i></div>
+          </div>
+
+          <!-- Audio & Interaction Control Bar -->
+          <div class="dhikr-toolbar">
+            <div class="toolbar-left">
+              <button class="tool-btn audio-btn" id="playAudioBtn" title="استمع لنطق الذكر">
+                <i class="fa-solid fa-volume-high"></i>
+                <span id="audioBtnText">استمع للذكر</span>
+              </button>
+
+              <button class="tool-btn copy-btn" id="copyDhikrBtn" title="نسخ نص الذكر">
+                <i class="fa-regular fa-copy"></i>
+                <span>نسخ</span>
+              </button>
+
+              <button class="tool-btn share-btn" id="shareDhikrBtn" title="مشاركة عبر الواتساب">
+                <i class="fa-brands fa-whatsapp"></i>
+                <span>مشاركة الذكر</span>
+              </button>
+
+              <button class="tool-btn font-size-btn" id="increaseFontBtn" title="تكبير الخط">
+                <i class="fa-solid fa-magnifying-glass-plus"></i>
+              </button>
+              <button class="tool-btn font-size-btn" id="decreaseFontBtn" title="تصغير الخط">
+                <i class="fa-solid fa-magnifying-glass-minus"></i>
+              </button>
+            </div>
+
+            <!-- Digital Tasbeeh Counter -->
+            <div class="tasbeeh-widget">
+              <div class="tasbeeh-progress-circle">
+                <svg viewBox="0 0 100 100">
+                  <circle class="bg-circle" cx="50" cy="50" r="42"></circle>
+                  <circle class="prog-circle" id="tasbeehProgCircle" cx="50" cy="50" r="42"></circle>
+                </svg>
+                <div class="counter-number">
+                  <span id="currentTasbeehCount">0</span>
+                  <small id="maxTasbeehCount">/3</small>
+                </div>
+              </div>
+
+              <button class="tasbeeh-click-btn" id="tasbeehClickBtn" title="اضغط للترديد والتسبيح">
+                <i class="fa-solid fa-fingerprint"></i>
+                <span>ردّد الآن</span>
+              </button>
+
+              <button class="tasbeeh-reset-btn" id="resetTasbeehBtn" title="إعادة ضبط العداد">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Virtue & Broadcast Instructions Card -->
+          <div class="dhikr-details-grid">
+            <div class="detail-box virtue-box">
+              <div class="box-title">
+                <i class="fa-solid fa-award"></i>
+                <h4>فضل هذا الذكر العظيم ومكانته في السنة النبوية</h4>
+              </div>
+              <div class="box-content" id="activeVirtueText">
+                <!-- Virtue text inserted via JS -->
+              </div>
+            </div>
+
+            <div class="detail-box radio-guide-box">
+              <div class="box-title">
+                <i class="fa-solid fa-bullhorn"></i>
+                <h4>توجيهات مقدم الإذاعة الصباحية وولي الأمر</h4>
+              </div>
+              <ul class="steps-list">
+                <li>
+                  <span class="step-num">1</span>
+                  <span><strong>القراءة:</strong> قراءة الذكر بتمهل وخشوع وصوت واضح أمام الطلاب أو مع الأسرة.</span>
+                </li>
+                <li>
+                  <span class="step-num">2</span>
+                  <span><strong>بيان الفضل:</strong> توضيح أثر الذكر وثمرته العظيمة في حفظ الطالب ونيل رضا ربه.</span>
+                </li>
+                <li>
+                  <span class="step-num">3</span>
+                  <span><strong>الترديد اليومي:</strong> ترديد الذكر جماعياً يومياً في الطابور الصباحي وتكراره في البيت.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Student Daily Challenge & Streak Counter (Individual Student Engine) -->
+      <section class="student-tracker-section">
+        <div class="tracker-card">
+          <div class="tracker-info">
+            <div class="trophy-badge">
+              <i class="fa-solid fa-trophy"></i>
+              <span id="badgeBannerText">ملف الطالب: محمد أحمد • وسام الذاكر الصغير</span>
+            </div>
+            <h3>سجل الالتزام بالورد اليومي</h3>
+            <p>سجّل إتمامك للورد اليوم لتوثيق تقدمك، ورفع تقريرك الأسبوعي لولي الأمر والمدرسة!</p>
+            
+            <div class="streak-metrics">
+              <div class="metric-item">
+                <span class="m-val" id="streakDaysCount">0</span>
+                <span class="m-label">أيام التزام متتالية</span>
+              </div>
+              <div class="metric-item">
+                <span class="m-val" id="totalRecitationsCount">0</span>
+                <span class="m-label">إجمالي مرات الترديد</span>
+              </div>
+              <div class="metric-item">
+                <span class="m-val" id="studentRankName">طالب مبادر</span>
+                <span class="m-label">المرتبة الإيمانية</span>
+              </div>
+              <div class="metric-item">
+                <span class="m-val" id="weeklyCompletionRate">0%</span>
+                <span class="m-label">نسبة التزام الأسبوع</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tracker-action">
+            <button class="btn-checkin" id="studentCheckinBtn">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>أتممت قراءة وردي اليوم!</span>
+            </button>
+            <span class="checkin-hint" id="checkinHint">اضغط لتسجيل قراءتك اليوم في سجلك الدائم</span>
+            
+            <div class="parent-quick-actions">
+              <button class="btn-send-whatsapp-report" id="sendWhatsAppReportBtn">
+                <i class="fa-brands fa-whatsapp"></i>
+                <span>إرسال تقرير إنجاز الطالب لولي الأمر</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Importance of Daily Dhikr Section (أفضال الذكر ولزوم قراءته يومياً) -->
+      <section class="importance-section">
+        <div class="section-header-center">
+          <span class="sub-badge"><i class="fa-solid fa-heart-pulse"></i> زادي وعتادي في حياتي</span>
+          <h2>لماذا يجب على الطالب قراءة الأذكار بشكل يومي؟</h2>
+          <p class="section-subtitle">الذكر هو روح الحياة، والحصن المنيع الذي يحفظ عقل الطالب وقلبه ويوفقه في دراسته ويومه</p>
+        </div>
+
+        <div class="pillars-grid">
+          <div class="pillar-card">
+            <div class="pillar-icon p-green"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3>الحصن الحصين والوقاية</h3>
+            <p>حماية ربانية متواصلة من العين والحسد، والوساوس الشيطانية، والشرور والمصائب في المدرسة والبيت والطريق.</p>
+            <div class="pillar-footer">«أعوذ بعظمتك أن أُغتال من تحتي»</div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon p-gold"><i class="fa-solid fa-brain"></i></div>
+            <h3>البركة وانشراح الصدر والتركيز</h3>
+            <p>يورث طمأنينة القلب، ويزيل التوتر والكسل، ويبعث النشاط والهمة وصفاء الذهن في الحصص واستيعاب الدروس.</p>
+            <div class="pillar-footer">﴿أَلَا بِذِكْرِ اللَّهِ تَطْمَئِنُّ الْقُلُوبُ﴾</div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon p-purple"><i class="fa-solid fa-hands-praying"></i></div>
+            <h3>القرب من الله ومحبته</h3>
+            <p>الذاكر يذكره الله في الملأ الأعلى، ويباهي به ملائكته، ويكون في معية الله وتوفيقه وتسديده في كل خطوة.</p>
+            <div class="pillar-footer">«أنا مع عبدي إذا هو ذكرني»</div>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon p-teal"><i class="fa-solid fa-seedling"></i></div>
+            <h3>غراس الجنة وتكفير الذنوب</h3>
+            <p>كلمات خفيفة على اللسان حبيبة إلى الرحمن، تبني للناشئ جبالاً من الحسنات وتثقل ميزانه وتمحو عنه الزلات.</p>
+            <div class="pillar-footer">«سبحان الله وبحمده، سبحان الله العظيم»</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Full 16-Week Curriculum Table / Grid Overview -->
+      <section class="curriculum-section">
+        <div class="section-header-flex">
+          <div>
+            <span class="sub-badge"><i class="fa-solid fa-list-check"></i> المنهج الشامل</span>
+            <h2>خطة توزيع الأذكار على الأسابيع الدراسية</h2>
+          </div>
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="searchDhikrInput" placeholder="ابحث في نصوص الأذكار أو الفضائل...">
+          </div>
+        </div>
+
+        <div class="curriculum-grid" id="curriculumCardsContainer">
+          <!-- Dynamically filled by JS -->
+        </div>
+      </section>
+
+      <!-- Daily Adhkar Quick Library (Morning & Evening Core) -->
+      <section class="extra-library-section">
+        <div class="library-card">
+          <div class="lib-header">
+            <div>
+              <h3><i class="fa-solid fa-book-quran text-gold"></i> من درر أذكار الصباح والمساء اليومية</h3>
+              <p>أذكار مأثورة أوصى بها النبي ﷺ احرص على اصطحابها مع ذكر الأسبوع</p>
+            </div>
+            <button class="lib-toggle-btn" id="toggleExtraAdhkarBtn">
+              <i class="fa-solid fa-chevron-down"></i>
+              <span>عرض الباقة المصاحبة</span>
+            </button>
+          </div>
+
+          <div class="extra-adhkar-list" id="extraAdhkarList" style="display: none;">
+            <div class="extra-item">
+              <div class="ex-num">١</div>
+              <div class="ex-body">
+                <p class="ex-text">«أَصْبَحْنَا وَأَصْبَحَ المُلْكُ لِلَّهِ، وَالحَمْدُ لِلَّهِ لا إِلَهَ إِلا اللَّهُ وَحْدَهُ لا شَرِيكَ لَهُ، لَهُ المُلْكُ وَلَهُ الحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ»</p>
+                <span class="ex-virtue">تجديد العبودية واعتراف بملك الله ونعمه مع مطلع كل صباح.</span>
+              </div>
+            </div>
+
+            <div class="extra-item">
+              <div class="ex-num">٢</div>
+              <div class="ex-body">
+                <p class="ex-text">«بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الأَرْضِ وَلا فِي السَّمَاءِ وَهُوَ السَّمِيعُ العَلِيمُ» (٣ مرات)</p>
+                <span class="ex-virtue">من قالها ثلاثاً لم يضره شيء حتى يمسي أو يصبح (رواه الترمذي).</span>
+              </div>
+            </div>
+
+            <div class="extra-item">
+              <div class="ex-num">٣</div>
+              <div class="ex-body">
+                <p class="ex-text">«أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ» (٣ مرات)</p>
+                <span class="ex-virtue">حصن من الهوام والسموم واللدغات والشرور كلها.</span>
+              </div>
+            </div>
+
+            <div class="extra-item">
+              <div class="ex-num">٤</div>
+              <div class="ex-body">
+                <p class="ex-text">«سُبْحَانَ اللَّهِ وَبِحَمْدِهِ عَدَدَ خَلْقِهِ، وَرِضَا نَفْسِهِ، وَزِنَةَ عَرْشِهِ، وَمِدَادَ كَلِمَاتِهِ» (٣ مرات)</p>
+                <span class="ex-virtue">تعدل ساعات طويلة من التسبيح والذكر في ميزان الحسنات.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ==========================================================
+       MODAL 1: STUDENT REPORT & CERTIFICATE (تقرير وشهادة الطالب)
+       ========================================================== -->
+  <div class="modal-overlay" id="studentReportModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-window report-modal-window">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-file-invoice text-gold"></i>
+          <h3>تقرير أداء الطالب وشهادة الإنجاز</h3>
+        </div>
+        <button class="modal-close-btn" id="closeStudentReportBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body report-printable-area" id="studentReportPrintArea">
+        <div class="report-header-banner">
+          <div class="rh-logos">
+            <img src="logo-itqan.png" alt="إتقان">
+            <div class="rh-titles">
+              <h4>مدارس إتقان التربية • برنامج الملهم التربوي</h4>
+              <h5>تقرير متابعة برنامج: «أذكاري زادي وعتادي»</h5>
+              <p>إشراف المعلم المربي: أ. محمد الدقن</p>
+            </div>
+            <img src="logo-molhem.png" alt="الملهم التربوي">
+          </div>
+        </div>
+
+        <div class="report-student-meta">
+          <div class="meta-box">
+            <span class="mb-label">اسم الطالب:</span>
+            <strong class="mb-val" id="repStudentName">محمد أحمد</strong>
+          </div>
+          <div class="meta-box">
+            <span class="mb-label">الصف والمرحلة:</span>
+            <strong class="mb-val" id="repStudentGrade">الصف الخامس الابتدائي</strong>
+          </div>
+          <div class="meta-box">
+            <span class="mb-label">تاريخ استخراج التقرير:</span>
+            <strong class="mb-val" id="repDateNow">اليوم</strong>
+          </div>
+          <div class="meta-box">
+            <span class="mb-label">المرتبة الإيمانية:</span>
+            <strong class="mb-val text-gold" id="repStudentRank">حافظ العهد 🌿</strong>
+          </div>
+        </div>
+
+        <div class="report-stats-grid">
+          <div class="r-stat-card">
+            <span class="rsc-num" id="repDaysStreak">0</span>
+            <span class="rsc-label">أيام الالتزام المتتالية</span>
+          </div>
+          <div class="r-stat-card">
+            <span class="rsc-num" id="repTotalCount">0</span>
+            <span class="rsc-label">إجمالي مرات الترديد</span>
+          </div>
+          <div class="r-stat-card">
+            <span class="rsc-num" id="repAdherencePercent">0%</span>
+            <span class="rsc-label">نسبة الالتزام العامة</span>
+          </div>
+          <div class="r-stat-card">
+            <span class="rsc-num" id="repWeeksMastered">0/8</span>
+            <span class="rsc-label">الدورات المنجزة</span>
+          </div>
+        </div>
+
+        <!-- 30-Day Activity Heatmap -->
+        <div class="activity-history-box">
+          <h5><i class="fa-solid fa-calendar-week text-gold"></i> سجل الأيام الأخيرة الملتزم بها:</h5>
+          <div class="days-heatmap-grid" id="repDaysHeatmap">
+            <!-- Filled dynamically by JS -->
+          </div>
+          <div class="heatmap-legend">
+            <span class="hl-item"><span class="box-legend active"></span> قرأ الورد وردد الذكر</span>
+            <span class="hl-item"><span class="box-legend"></span> لم يتم التسجيل بعد</span>
+          </div>
+        </div>
+
+        <!-- Teacher & Parent Recommendation Signatures -->
+        <div class="report-signatures">
+          <div class="sig-box">
+            <span>توقيع ولي الأمر:</span>
+            <div class="sig-line">تمت المتابعة والمصادقة في البيت ✍️</div>
+          </div>
+          <div class="sig-box">
+            <span>إشراف الملهم التربوي:</span>
+            <div class="sig-line">أ. محمد الدقن (معتمد) ⭐</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-action-primary" id="printReportDocBtn">
+          <i class="fa-solid fa-print"></i>
+          <span>طباعة هذا التقرير (أو حفظه PDF)</span>
+        </button>
+        <button class="btn-action-whatsapp" id="shareReportViaWhatsAppBtn">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span>مشاركة التقرير عبر الواتساب</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 2: PARENT SHARE LINK GENERATOR (توليد رابط ولي الأمر)
+       ========================================================== -->
+  <div class="modal-overlay" id="parentShareModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-brands fa-whatsapp text-gold"></i>
+          <h3>إرسال رابط المتابعة لولي أمر الطالب</h3>
+        </div>
+        <button class="modal-close-btn" id="closeParentShareBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="share-intro">
+          يمكنك إرسال هذا الرابط المباشر إلى ولي أمر الطالب عبر تطبيق الواتساب أو الرسائل النصية. عند فتح الرابط، سيفتح موقع البرنامج مخصصاً باسم الطالب ويسمح لولي أمره بمتابعة ورده وتأكيده يومياً!
+        </p>
+
+        <div class="link-display-box">
+          <span class="link-label">رابط المتابعة المخصص للطالب:</span>
+          <div class="link-input-group">
+            <input type="text" id="parentCustomLinkInput" readonly>
+            <button class="btn-copy-link" id="copyParentCustomLinkBtn"><i class="fa-regular fa-copy"></i> نسخ الرابط</button>
+          </div>
+        </div>
+
+        <div class="share-whatsapp-direct">
+          <button class="btn-whatsapp-big" id="sendDirectWhatsAppBtn">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span>إرسال فوري إلى ولي الأمر عبر واتساب</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 3: STUDENT MANAGER (إدارة الطلاب وتغيير الطالب)
+       ========================================================== -->
+  <div class="modal-overlay" id="studentManagerModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-window">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-users text-gold"></i>
+          <h3>إدارة وتغيير ملف الطالب</h3>
+        </div>
+        <button class="modal-close-btn" id="closeStudentManagerBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- New Student Form -->
+        <div class="add-student-box">
+          <h4><i class="fa-solid fa-user-plus text-gold"></i> إضافة طالب جديد للقائمة</h4>
+          <form id="newStudentForm" class="new-student-form">
+            <div class="form-row">
+              <input type="text" id="newStudentNameInput" placeholder="اسم الطالب الثلاثي..." required>
+              <select id="newStudentGradeSelect" required>
+                <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+                <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+                <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+                <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+                <option value="الصف الخامس الابتدائي" selected>الصف الخامس الابتدائي</option>
+                <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+                <option value="الصف الأول متوسط">الصف الأول متوسط</option>
+                <option value="الصف الثاني متوسط">الصف الثاني متوسط</option>
+                <option value="الصف الثالث متوسط">الصف الثالث متوسط</option>
+                <option value="المرحلة الثانوية">المرحلة الثانوية</option>
+              </select>
+            </div>
+            <button type="submit" class="btn-add-stu">
+              <i class="fa-solid fa-plus"></i> إضافة الطالب وتفعيله
+            </button>
+          </form>
+        </div>
+
+        <!-- Registered Students List -->
+        <div class="students-list-box">
+          <h4>قائمة الطلاب المسجلين على هذا الجهاز:</h4>
+          <div class="students-list-grid" id="studentsListGrid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 4: ADMIN / SCHOOL REPORTS DASHBOARD (لوحة تقارير المدرسة)
+       ========================================================== -->
+  <div class="modal-overlay" id="adminDashboardModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-window admin-modal-window">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <i class="fa-solid fa-chart-line text-gold"></i>
+          <h3>لوحة تقارير المشرف والملهم التربوي للمدرسة</h3>
+        </div>
+        <button class="modal-close-btn" id="closeAdminDashboardBtn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Summary Stats -->
+        <div class="admin-kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-icon"><i class="fa-solid fa-user-group"></i></div>
+            <div class="kpi-info">
+              <span class="kpi-title">إجمالي الطلاب المسجلين</span>
+              <span class="kpi-val" id="adminTotalStudents">0</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon"><i class="fa-solid fa-check-double"></i></div>
+            <div class="kpi-info">
+              <span class="kpi-title">الطلاب الملتزمين اليوم</span>
+              <span class="kpi-val text-gold" id="adminActiveToday">0</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon"><i class="fa-solid fa-repeat"></i></div>
+            <div class="kpi-info">
+              <span class="kpi-title">إجمالي ترديدات المدرسة</span>
+              <span class="kpi-val" id="adminTotalSchoolRecitations">0</span>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-icon"><i class="fa-solid fa-percent"></i></div>
+            <div class="kpi-info">
+              <span class="kpi-title">متوسط التزام الطلاب</span>
+              <span class="kpi-val" id="adminAverageAdherence">0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Filters & Export -->
+        <div class="admin-table-actions">
+          <div class="filter-inputs">
+            <input type="text" id="adminSearchStudentInput" placeholder="بحث باسم الطالب...">
+            <select id="adminFilterGradeSelect">
+              <option value="ALL">جميع الصفوف والمراحل</option>
+              <option value="الابتدائي">المرحلة الابتدائية</option>
+              <option value="متوسط">المرحلة المتوسطة</option>
+              <option value="الثانوية">المرحلة الثانوية</option>
+            </select>
+          </div>
+
+          <button class="btn-export-excel" id="exportExcelBtn">
+            <i class="fa-solid fa-file-excel"></i>
+            <span>تصدير كشف إكسل (Excel / CSV)</span>
+          </button>
+        </div>
+
+        <!-- Student Roster Table -->
+        <div class="table-responsive">
+          <table class="admin-students-table">
+            <thead>
+              <tr>
+                <th>كود الطالب</th>
+                <th>اسم الطالب</th>
+                <th>الصف الدراسي</th>
+                <th>أيام الالتزام</th>
+                <th>إجمالي الترديد</th>
+                <th>حالة اليوم</th>
+                <th>المرتبة</th>
+                <th>إجراءات سريعة</th>
+              </tr>
+            </thead>
+            <tbody id="adminStudentsTableBody">
+              <!-- Rendered by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Morning Broadcast Fullscreen Mode (وضع الإذاعة المدرسية) -->
+  <div class="broadcast-modal" id="broadcastModal">
+    <div class="modal-backdrop"></div>
+    <div class="broadcast-content">
+      <div class="broadcast-top-bar">
+        <div class="bc-brand">
+          <img src="logo-itqan.png" alt="إتقان">
+          <img src="logo-molhem.png" alt="الملهم التربوي">
+          <div class="bc-title-info">
+            <h2>إذاعة الصباح المدرسية • أذكاري زادي وعتادي</h2>
+            <span id="modalWeekDisplay">الأسبوع الحالي</span>
+          </div>
+        </div>
+        <div class="bc-controls">
+          <button class="bc-btn" id="bcVoiceBtn"><i class="fa-solid fa-volume-high"></i> نطق الذكر</button>
+          <button class="bc-btn" id="bcFullscreenBtn"><i class="fa-solid fa-expand"></i> ملء الشاشة</button>
+          <button class="bc-close-btn" id="closeBroadcastModalBtn"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="broadcast-body">
+        <div class="bc-phase-badge">
+          <span class="pulsing-dot"></span>
+          الخطوة ١: استمعوا بخشوع لذكر الأسبوع
+        </div>
+
+        <div class="bc-dhikr-box">
+          <h1 id="bcDhikrText" class="amiri-font">
+            <!-- Text -->
+          </h1>
+        </div>
+
+        <div class="bc-virtue-banner">
+          <div class="bc-v-icon"><i class="fa-solid fa-lightbulb"></i></div>
+          <div class="bc-v-content">
+            <strong>فضل هذا الذكر للطلاب:</strong>
+            <p id="bcVirtueText"><!-- Virtue --></p>
+          </div>
+        </div>
+
+        <div class="bc-repeat-bar">
+          <div class="bc-prompt">
+            <i class="fa-solid fa-microphone"></i>
+            <span>رددوا الآن مع مقدم الإذاعة الصباحية بصوت واحد مبارك:</span>
+          </div>
+          <div class="bc-counter-pill" id="bcCounterPill">
+            تكرار: <span id="bcCountNum">0</span> من <span id="bcTargetNum">3</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="broadcast-footer">
+        <span>برنامج الملهم التربوي — إشراف أ. محمد الدقن | بالعلم نلهم المستقبل</span>
+        <button class="bc-btn-next-step" id="bcIncrementBtn">
+          <i class="fa-solid fa-thumbs-up"></i>
+          <span>تم الترديد (زيادة العداد)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Print Card Template (Hidden until printed) -->
+  <div id="printArea" class="print-container">
+    <div class="print-card-wrapper">
+      <div class="print-logos">
+        <img src="logo-itqan.png" alt="إتقان التربية" class="p-logo">
+        <div class="p-header-text">
+          <h2>مجموعة مدارس إتقان التربية</h2>
+          <h3>برنامج «أذكاري زادي وعتادي»</h3>
+          <p>من برامج الملهم التربوي — إشراف: أ. محمد الدقن</p>
+        </div>
+        <img src="logo-molhem.png" alt="الملهم التربوي" class="p-logo">
+      </div>
+
+      <div class="p-divider"></div>
+
+      <div class="p-meta">
+        <span class="p-week" id="printWeekName">الأسبوع الأول والثاني</span>
+        <span class="p-target" id="printTargetName">الترديد: ٣ مرات يومياً</span>
+      </div>
+
+      <div class="p-dhikr-body">
+        <div class="p-quote">﴾</div>
+        <div class="p-text" id="printDhikrContent">
+          <!-- Text -->
+        </div>
+        <div class="p-quote">﴿</div>
+      </div>
+
+      <div class="p-virtue-box">
+        <strong>فضله وثمرته:</strong>
+        <p id="printVirtueContent"></p>
+      </div>
+
+      <div class="p-checklist">
+        <span>سجل المتابعة اليومية للطالب:</span>
+        <div class="check-boxes">
+          <div class="day-box">الأحد ▢</div>
+          <div class="day-box">الإثنين ▢</div>
+          <div class="day-box">الثلاثاء ▢</div>
+          <div class="day-box">الأربعاء ▢</div>
+          <div class="day-box">الخميس ▢</div>
+        </div>
+      </div>
+
+      <div class="p-footer">
+        <span>الهدف: حتى يدرك الطالب أهمية الذكر وأنه يقربه إلى الله</span>
+        <span>اسم الطالب: <span id="printStudentPlaceholder">.......................</span> | الصف: ..............</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Footer -->
+  <footer class="main-footer">
+    <div class="container footer-content">
+      <div class="footer-col col-brand">
+        <div class="footer-logos">
+          <img src="logo-itqan.png" alt="إتقان التربية" class="f-logo">
+          <img src="logo-molhem.png" alt="الملهم التربوي" class="f-logo">
+        </div>
+        <p class="f-desc">
+          برنامج <strong>«أذكاري زادي وعتادي»</strong> مبادرة تربوية وإيمانية تهدف إلى بناء جيل متصل بربه، متحصن بأذكاره، يستفتح يومه الدراسي بذكر الله وطاعته.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>روابط سريعة للبرنامج</h4>
+        <ul class="f-links">
+          <li><a href="#activeDhikrSection"><i class="fa-solid fa-angle-left"></i> ذكر الأسبوع الحالي</a></li>
+          <li><a href="#" id="fParentLink"><i class="fa-solid fa-angle-left"></i> رابط ولي الأمر للمتابعة</a></li>
+          <li><a href="#" id="fReportLink"><i class="fa-solid fa-angle-left"></i> تقرير الطالب والشهادة</a></li>
+          <li><a href="#" id="fAdminLink"><i class="fa-solid fa-angle-left"></i> لوحة تقارير المدرسة</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col col-credentials">
+        <h4>هوية البرنامج المعتمدة</h4>
+        <div class="cred-card">
+          <div class="cred-icon"><i class="fa-solid fa-user-tie"></i></div>
+          <div class="cred-text">
+            <strong>الملهم التربوي</strong>
+            <span>أ. محمد الدقن (بالعلم.. نلهم المستقبل)</span>
+          </div>
+        </div>
+        <div class="cred-card">
+          <div class="cred-icon"><i class="fa-solid fa-school"></i></div>
+          <div class="cred-text">
+            <strong>إتقان التربية</strong>
+            <span>ITQAN ATTARBIAH — إشراقة المستقبل</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container fb-flex">
+        <p>© جميع الحقوق محفوظة لبرنامج «أذكاري زادي وعتادي» — الملهم التربوي وإتقان التربية</p>
+        <span class="live-status-pill"><i class="fa-solid fa-signal"></i> نظام التقارير التفاعلي مفعل</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="toastNotification" class="toast-box">
+    <i class="fa-solid fa-bell"></i>
+    <span id="toastMsg">تم بنجاح!</span>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
