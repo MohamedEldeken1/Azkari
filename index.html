@@ -44,15 +44,28 @@
     </div>
   </div>
 
-  <!-- Active Student Profile Bar (NEW) -->
+  <!-- Active Student Profile Bar (Customizable Name) -->
   <div class="student-bar-strip">
     <div class="container student-bar-flex">
       <div class="active-student-pill">
         <div class="student-avatar"><i class="fa-solid fa-user-graduate"></i></div>
-        <div class="student-pill-info">
-          <span class="pill-label">الطالب الحالي النشط:</span>
-          <strong id="activeStudentNameHeader">طالب تجريبي</strong>
-          <span class="pill-grade" id="activeStudentGradeHeader">(الصف الخامس الابتدائي)</span>
+        <div class="student-pill-inputs">
+          <div class="input-name-wrap">
+            <i class="fa-solid fa-pen-clip input-icon"></i>
+            <input type="text" id="studentNameInputTop" class="student-name-input" placeholder="اكتب اسم الطالب هنا..." autocomplete="off">
+          </div>
+          <select id="studentGradeSelectTop" class="student-grade-select">
+            <option value="الصف الأول الابتدائي">الصف الأول الابتدائي</option>
+            <option value="الصف الثاني الابتدائي">الصف الثاني الابتدائي</option>
+            <option value="الصف الثالث الابتدائي">الصف الثالث الابتدائي</option>
+            <option value="الصف الرابع الابتدائي">الصف الرابع الابتدائي</option>
+            <option value="الصف الخامس الابتدائي" selected>الصف الخامس الابتدائي</option>
+            <option value="الصف السادس الابتدائي">الصف السادس الابتدائي</option>
+            <option value="الصف الأول متوسط">الصف الأول متوسط</option>
+            <option value="الصف الثاني متوسط">الصف الثاني متوسط</option>
+            <option value="الصف الثالث متوسط">الصف الثالث متوسط</option>
+            <option value="المرحلة الثانوية">المرحلة الثانوية</option>
+          </select>
         </div>
       </div>
 
@@ -67,9 +80,9 @@
           <span>تقرير الطالب</span>
         </button>
 
-        <button class="s-action-btn btn-switch-student" id="openSwitchStudentBtn" title="تغيير الطالب أو إضافة طالب جديد">
+        <button class="s-action-btn btn-switch-student" id="openSwitchStudentBtn" title="تغيير الطالب أو إدارة الطلاب">
           <i class="fa-solid fa-users-gear"></i>
-          <span>إدارة الطلاب</span>
+          <span>قائمة الطلاب</span>
         </button>
       </div>
     </div>
@@ -501,7 +514,10 @@
         <div class="report-student-meta">
           <div class="meta-box">
             <span class="mb-label">اسم الطالب:</span>
-            <strong class="mb-val" id="repStudentName">محمد أحمد</strong>
+            <div class="rep-name-container">
+              <strong class="mb-val" id="repStudentName">........................................</strong>
+              <button class="btn-rep-edit-name" id="btnRepEditName" title="تعديل أو كتابة اسم الطالب"><i class="fa-solid fa-pen"></i></button>
+            </div>
           </div>
           <div class="meta-box">
             <span class="mb-label">الصف والمرحلة:</span>

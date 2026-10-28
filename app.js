@@ -208,8 +208,8 @@ const currentDateHijri = document.getElementById("currentDateHijri");
 const themeToggleBtn = document.getElementById("themeToggleBtn");
 
 // Header Student Bar
-const activeStudentNameHeader = document.getElementById("activeStudentNameHeader");
-const activeStudentGradeHeader = document.getElementById("activeStudentGradeHeader");
+const studentNameInputTop = document.getElementById("studentNameInputTop");
+const studentGradeSelectTop = document.getElementById("studentGradeSelectTop");
 const openParentShareBtn = document.getElementById("openParentShareBtn");
 const openStudentReportBtn = document.getElementById("openStudentReportBtn");
 const openSwitchStudentBtn = document.getElementById("openSwitchStudentBtn");
@@ -326,18 +326,17 @@ document.addEventListener("DOMContentLoaded", () => {
   setupEventListeners();
 });
 
-// Load & Seed Students
+// Load & Initialize Students
 function loadStudentsData() {
   const saved = localStorage.getItem(KEY_STUDENTS);
   if (saved) {
     try {
       studentsList = JSON.parse(saved);
     } catch (e) {
-      studentsList = initialSeedStudents;
+      studentsList = [];
     }
   } else {
-    studentsList = initialSeedStudents;
-    saveStudentsData();
+    studentsList = [];
   }
 
   // Active student
@@ -345,8 +344,21 @@ function loadStudentsData() {
   if (activeId) {
     currentActiveStudent = studentsList.find(s => s.id === activeId);
   }
-  if (!currentActiveStudent && studentsList.length > 0) {
-    currentActiveStudent = studentsList[0];
+  
+  // If no saved student or name is empty, initialize fresh so student can write their own name
+  if (!currentActiveStudent) {
+    currentActiveStudent = {
+      id: "STU-" + Math.floor(1000 + Math.random() * 9000),
+      name: "", // PLACEHOLDER EMPTY BY DEFAULT
+      grade: "الصف الخامس الابتدائي",
+      streak: 0,
+      totalCount: 0,
+      lastCheckinDate: "",
+      dailyHistory: [],
+      parentConfirmed: false
+    };
+    studentsList.unshift(currentActiveStudent);
+    saveStudentsData();
   }
 }
 
@@ -365,34 +377,41 @@ function handleUrlParameters() {
   const paramGrade = params.get("grade");
   const isParentMode = params.get("mode") === "parent" || params.has("parent");
 
-  if (paramStudentId) {
-    const found = studentsList.find(s => s.id === paramStudentId);
-    if (found) {
-      currentActiveStudent = found;
-      saveStudentsData();
-    }
-  } else if (paramName) {
-    let found = studentsList.find(s => s.name.trim() === paramName.trim());
+  if (paramName) {
+    const decodedName = decodeURIComponent(paramName).trim();
+    let found = studentsList.find(s => s.name && s.name.trim() === decodedName);
     if (!found) {
-      // Create new student from URL parameters
       found = {
         id: "STU-" + Math.floor(1000 + Math.random() * 9000),
-        name: decodeURIComponent(paramName),
+        name: decodedName,
         grade: paramGrade ? decodeURIComponent(paramGrade) : "الصف الخامس الابتدائي",
-        streak: 1,
-        totalCount: 3,
-        lastCheckinDate: new Date().toDateString(),
-        dailyHistory: [new Date().toDateString()],
+        streak: 0,
+        totalCount: 0,
+        lastCheckinDate: "",
+        dailyHistory: [],
         parentConfirmed: false
       };
       studentsList.push(found);
     }
     currentActiveStudent = found;
     saveStudentsData();
+  } else if (paramStudentId) {
+    const found = studentsList.find(s => s.id === paramStudentId);
+    if (found) {
+      currentActiveStudent = found;
+      saveStudentsData();
+    }
   }
 
   // If in Parent Mode, show the parent welcome banner
   if (isParentMode && currentActiveStudent) {
+    parentWelcomeBanner.style.display = "block";
+    pwbStudentName.textContent = currentActiveStudent.name || "المبارك";
+    setTimeout(() => {
+      parentWelcomeBanner.scrollIntoView({ behavior: 'smooth' });
+    }, 400);
+  }
+}
     parentWelcomeBanner.style.display = "block";
     pwbStudentName.textContent = currentActiveStudent.name;
     // Scroll smoothly to active dhikr
@@ -600,9 +619,32 @@ function stopAudio() {
 function updateStudentUI() {
   if (!currentActiveStudent) return;
 
-  activeStudentNameHeader.textContent = currentActiveStudent.name;
-  activeStudentGradeHeader.textContent = `(${currentActiveStudent.grade})`;
-  badgeBannerText.textContent = `ملف الطالب: ${currentActiveStudent.name} • ${getRankName(currentActiveStudent.streak)}`;
+  const currentName = (currentActiveStudent.name || "").trim();
+
+  // Sync Top Input values (only update input if user is not actively typing in it)
+  if (studentNameInputTop && document.activeElement !== studentNameInputTop) {
+    studentNameInputTop.value = currentActiveStudent.name || "";
+  }
+  if (studentGradeSelectTop) {
+    studentGradeSelectTop.value = currentActiveStudent.grade || "الصف الخامس الابتدائي";
+  }
+
+  // Header & Tracker Label
+  if (currentName) {
+    badgeBannerText.textContent = `ملف الطالب: ${currentName} • ${getRankName(currentActiveStudent.streak)}`;
+    printStudentPlaceholder.textContent = `${currentName} (${currentActiveStudent.grade})`;
+    repStudentName.textContent = currentName;
+    pwbStudentName.textContent = currentName;
+  } else {
+    badgeBannerText.textContent = `ملف الطالب: (اكتب اسمك لتسجيل الورد باسمك) • طالب مبادر 🌱`;
+    printStudentPlaceholder.textContent = `....................................................`;
+    repStudentName.innerHTML = `<span style="color: #64748b; font-weight: normal; font-size: 0.95rem;">(لم يُسجل الاسم بعد - اكتب اسمك في الشريط بالأعلى)</span>`;
+    pwbStudentName.textContent = `المبارك`;
+  }
+
+  if (repStudentGrade) {
+    repStudentGrade.textContent = currentActiveStudent.grade || "الصف الخامس الابتدائي";
+  }
   
   streakDaysCount.textContent = currentActiveStudent.streak || 0;
   totalRecitationsCount.textContent = currentActiveStudent.totalCount || 0;
@@ -629,7 +671,9 @@ function updateStudentUI() {
     studentCheckinBtn.classList.remove("checked-today");
     studentCheckinBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> <span>أتممت قراءة وردي اليوم!</span>`;
     studentCheckinBtn.disabled = false;
-    checkinHint.textContent = "اضغط لتسجيل قراءتك اليوم في سجلك الدائم";
+    checkinHint.textContent = currentName 
+      ? `اضغط يا ${currentName} لتسجيل قراءتك اليوم في سجلك الدائم`
+      : "اضغط لتسجيل قراءتك اليوم في سجلك الدائم";
   }
 
   // Generate Custom Parent Link
@@ -690,7 +734,9 @@ function handleParentConfirmation() {
 function generateParentShareLink() {
   if (!currentActiveStudent) return;
   let base = window.location.href.split("?")[0];
-  const parentUrl = `${base}?studentId=${encodeURIComponent(currentActiveStudent.id)}&mode=parent`;
+  const nameParam = currentActiveStudent.name ? `&name=${encodeURIComponent(currentActiveStudent.name)}` : '';
+  const gradeParam = currentActiveStudent.grade ? `&grade=${encodeURIComponent(currentActiveStudent.grade)}` : '';
+  const parentUrl = `${base}?studentId=${encodeURIComponent(currentActiveStudent.id)}&mode=parent${nameParam}${gradeParam}`;
   parentCustomLinkInput.value = parentUrl;
 }
 
@@ -699,10 +745,11 @@ function shareParentLinkWhatsApp() {
   if (!currentActiveStudent) return;
   const link = parentCustomLinkInput.value;
   const currentItem = adhkarCurriculum[currentCycleIndex];
+  const studentTitle = currentActiveStudent.name ? `*${currentActiveStudent.name}*` : `المبارك`;
 
   const msg = encodeURIComponent(
     `السلام عليكم ورحمة الله وبركاته 🌿\n` +
-    `ولي أمر الطالب المبارك: *${currentActiveStudent.name}*\n\n` +
+    `ولي أمر الطالب: ${studentTitle}\n\n` +
     `ضمن برنامج *«أذكاري زادي وعتادي»* بإشراف المعلم المربي: *أ. محمد الدقن* (الملهم التربوي) بالتعاون مع *مدارس إتقان التربية*.\n\n` +
     `✨ ذكر الأسبوع المعتمد:\n«${currentItem.text}»\n\n` +
     `📲 يسعدنا متابعتكم لورد ابنكم ومصادقة قراءته اليومية مباشرة عبر هذا الرابط المخصص:\n${link}\n\n` +
@@ -719,6 +766,21 @@ function shareStudentReportWhatsApp() {
   const streak = currentActiveStudent.streak || 0;
   const total = currentActiveStudent.totalCount || 0;
   const rank = getRankName(streak);
+  const studentTitle = currentActiveStudent.name ? `*${currentActiveStudent.name}*` : `طالب مبارك`;
+
+  const msg = encodeURIComponent(
+    `📊 *تقرير أداء الطالب في برنامج «أذكاري زادي وعتادي»* 📊\n\n` +
+    `👤 الطالب: ${studentTitle}\n` +
+    `🏫 الصف: *${currentActiveStudent.grade}*\n` +
+    `⭐ المرتبة الإيمانية: *${rank}*\n` +
+    `🔥 أيام الالتزام المتتالية: *${streak} أيام*\n` +
+    `🔁 إجمالي مرات الترديد: *${total} مرة*\n\n` +
+    `🌟 إشراف الملهم التربوي: *أ. محمد الدقن* | مدارس *إتقان التربية*\n\n` +
+    `🔗 لمتابعة لوحة الطالب والشهادة التقديرية:\n${link}`
+  );
+
+  window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
+}
 
   const msg = encodeURIComponent(
     `📊 *تقرير أداء الطالب في برنامج «أذكاري زادي وعتادي»* 📊\n\n` +
@@ -1144,6 +1206,42 @@ function setupEventListeners() {
   shareDhikrBtn.addEventListener("click", shareOnWhatsApp);
   increaseFontBtn.addEventListener("click", () => changeFontSize(1));
   decreaseFontBtn.addEventListener("click", () => changeFontSize(-1));
+
+  // Student Name & Grade Real-time Sync
+  if (studentNameInputTop) {
+    studentNameInputTop.addEventListener("input", (e) => {
+      const val = e.target.value;
+      if (currentActiveStudent) {
+        currentActiveStudent.name = val;
+        saveStudentsData();
+        updateStudentUI();
+        renderActiveDhikr();
+      }
+    });
+  }
+
+  if (studentGradeSelectTop) {
+    studentGradeSelectTop.addEventListener("change", (e) => {
+      const val = e.target.value;
+      if (currentActiveStudent) {
+        currentActiveStudent.grade = val;
+        saveStudentsData();
+        updateStudentUI();
+        renderActiveDhikr();
+      }
+    });
+  }
+
+  const btnRepEditName = document.getElementById("btnRepEditName");
+  if (btnRepEditName) {
+    btnRepEditName.addEventListener("click", () => {
+      closeStudentReport();
+      if (studentNameInputTop) {
+        studentNameInputTop.focus();
+        studentNameInputTop.select();
+      }
+    });
+  }
 
   // Student Checkin & Parent Actions
   studentCheckinBtn.addEventListener("click", handleStudentCheckin);
