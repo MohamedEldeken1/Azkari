@@ -66,6 +66,10 @@
             <option value="الصف الثالث متوسط">الصف الثالث متوسط</option>
             <option value="المرحلة الثانوية">المرحلة الثانوية</option>
           </select>
+          <button class="btn-save-student-name" id="saveStudentNameBtn" title="تثبيت وحفظ الاسم">
+            <i class="fa-solid fa-check"></i>
+            <span>تثبيت</span>
+          </button>
         </div>
       </div>
 
@@ -332,8 +336,21 @@
           <div class="tracker-info">
             <div class="trophy-badge">
               <i class="fa-solid fa-trophy"></i>
-              <span id="badgeBannerText">ملف الطالب: محمد أحمد • وسام الذاكر الصغير</span>
+              <span id="badgeBannerText">ملف الطالب: (اكتب اسمك لتسجيل الورد باسمك) • طالب مبادر 🌱</span>
             </div>
+            
+            <div class="student-name-prompt-card" id="studentNamePromptCard">
+              <div class="prompt-text">
+                <i class="fa-solid fa-id-card text-gold"></i>
+                <span>اسم الطالب المسجل:</span>
+                <strong id="displayActiveStudentName" class="display-active-name">(اضغط لكتابة اسمك)</strong>
+              </div>
+              <button class="btn-quick-edit-name" id="btnQuickEditName" title="كتابة أو تعديل اسم الطالب">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>تعديل الاسم</span>
+              </button>
+            </div>
+
             <h3>سجل الالتزام بالورد اليومي</h3>
             <p>سجّل إتمامك للورد اليوم لتوثيق تقدمك، ورفع تقريرك الأسبوعي لولي الأمر والمدرسة!</p>
             

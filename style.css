@@ -324,6 +324,75 @@ body.dark-mode .bg-pattern {
   border-color: var(--accent-gold);
 }
 
+.btn-save-student-name {
+  background: linear-gradient(135deg, #064e3b, #047857);
+  color: #fbbf24;
+  border: 1px solid var(--border-gold);
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  white-space: nowrap;
+  transition: var(--transition-smooth);
+}
+
+.btn-save-student-name:hover {
+  background: #047857;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.student-name-prompt-card {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px dashed rgba(245, 158, 11, 0.5);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.prompt-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.92rem;
+}
+
+.display-active-name {
+  color: #fbbf24;
+  font-weight: 800;
+}
+
+.btn-quick-edit-name {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: var(--transition-smooth);
+}
+
+.btn-quick-edit-name:hover {
+  background: #f59e0b;
+  color: #022c22;
+}
+
 .rep-name-container {
   display: flex;
   align-items: center;

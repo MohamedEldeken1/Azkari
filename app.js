@@ -412,23 +412,15 @@ function handleUrlParameters() {
     }, 400);
   }
 }
-    parentWelcomeBanner.style.display = "block";
-    pwbStudentName.textContent = currentActiveStudent.name;
-    // Scroll smoothly to active dhikr
-    setTimeout(() => {
-      parentWelcomeBanner.scrollIntoView({ behavior: 'smooth' });
-    }, 400);
-  }
-}
 
-// Calculate Current Academic Week
+// Calculate Academic Week (Defaults to Week 1-2 or previously selected week)
 function calculateAutoWeek() {
-  const now = new Date();
-  const startOfYear = new Date(now.getFullYear(), 0, 1);
-  const pastDaysOfYear = (now - startOfYear) / 86400000;
-  const currentWeekOfYear = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7);
-  const autoCycle = Math.floor((currentWeekOfYear % 16) / 2);
-  currentCycleIndex = (autoCycle >= 0 && autoCycle < adhkarCurriculum.length) ? autoCycle : 0;
+  const savedCycle = localStorage.getItem(STORAGE_PREFIX + "selected_cycle");
+  if (savedCycle !== null) {
+    currentCycleIndex = parseInt(savedCycle, 10) || 0;
+  } else {
+    currentCycleIndex = 0; // Starts at Week 1-2: الرضا بالله رباً
+  }
 }
 
 // Hijri & Gregorian Dates and Rotating Quotes
@@ -476,6 +468,7 @@ function renderWeekTabs() {
 
 function selectCycle(index) {
   currentCycleIndex = index;
+  localStorage.setItem(STORAGE_PREFIX + "selected_cycle", index.toString());
   tasbeehCounter = 0;
   renderWeekTabs();
   renderActiveDhikr();
@@ -572,6 +565,8 @@ function resetTasbeeh() {
 }
 
 // Audio Player
+let audioSafetyTimer = null;
+
 function togglePlayAudio() {
   if (isAudioPlaying) {
     stopAudio();
@@ -583,27 +578,44 @@ function togglePlayAudio() {
     return;
   }
 
-  window.speechSynthesis.cancel();
-  const currentItem = adhkarCurriculum[currentCycleIndex];
-  speechInstance = new SpeechSynthesisUtterance(currentItem.text);
-  speechInstance.lang = 'ar-SA';
-  speechInstance.rate = 0.85;
-  speechInstance.pitch = 1.0;
+  try {
+    window.speechSynthesis.cancel();
+    const currentItem = adhkarCurriculum[currentCycleIndex];
+    speechInstance = new SpeechSynthesisUtterance(currentItem.text);
+    speechInstance.lang = 'ar-SA';
+    speechInstance.rate = 0.85;
+    speechInstance.pitch = 1.0;
 
-  speechInstance.onstart = () => {
-    isAudioPlaying = true;
-    playAudioBtn.classList.add("playing");
-    audioBtnText.textContent = "جاري الاستماع... (إيقاف)";
-    bcVoiceBtn.innerHTML = `<i class="fa-solid fa-stop"></i> إيقاف النطق`;
-  };
+    const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+    const arVoice = voices.find(v => v.lang && v.lang.toLowerCase().startsWith('ar'));
+    if (arVoice) {
+      speechInstance.voice = arVoice;
+    }
 
-  speechInstance.onend = stopAudio;
-  speechInstance.onerror = stopAudio;
+    speechInstance.onstart = () => {
+      isAudioPlaying = true;
+      playAudioBtn.classList.add("playing");
+      audioBtnText.textContent = "جاري الاستماع... (إيقاف)";
+      bcVoiceBtn.innerHTML = `<i class="fa-solid fa-stop"></i> إيقاف النطق`;
+    };
 
-  window.speechSynthesis.speak(speechInstance);
+    speechInstance.onend = stopAudio;
+    speechInstance.onerror = stopAudio;
+
+    clearTimeout(audioSafetyTimer);
+    audioSafetyTimer = setTimeout(() => {
+      if (isAudioPlaying) stopAudio();
+    }, 18000);
+
+    window.speechSynthesis.speak(speechInstance);
+  } catch (err) {
+    console.error("Audio TTS error:", err);
+    stopAudio();
+  }
 }
 
 function stopAudio() {
+  clearTimeout(audioSafetyTimer);
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
   }
@@ -644,6 +656,11 @@ function updateStudentUI() {
 
   if (repStudentGrade) {
     repStudentGrade.textContent = currentActiveStudent.grade || "الصف الخامس الابتدائي";
+  }
+
+  const displayActiveStudentName = document.getElementById("displayActiveStudentName");
+  if (displayActiveStudentName) {
+    displayActiveStudentName.textContent = currentName ? `${currentName} (${currentActiveStudent.grade})` : "(اضغط هنا لكتابة اسمك)";
   }
   
   streakDaysCount.textContent = currentActiveStudent.streak || 0;
@@ -690,6 +707,17 @@ function getRankName(streak) {
 
 function handleStudentCheckin() {
   if (!currentActiveStudent) return;
+
+  const currentName = (currentActiveStudent.name || "").trim();
+  if (!currentName) {
+    showToast("يرجى كتابة اسمك في الخانة المخصصة بالأعلى أولاً لحفظ إنجازك باسمك!");
+    if (studentNameInputTop) {
+      studentNameInputTop.focus();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    return;
+  }
+
   const todayStr = new Date().toDateString();
 
   if (currentActiveStudent.lastCheckinDate === todayStr) {
@@ -771,20 +799,6 @@ function shareStudentReportWhatsApp() {
   const msg = encodeURIComponent(
     `📊 *تقرير أداء الطالب في برنامج «أذكاري زادي وعتادي»* 📊\n\n` +
     `👤 الطالب: ${studentTitle}\n` +
-    `🏫 الصف: *${currentActiveStudent.grade}*\n` +
-    `⭐ المرتبة الإيمانية: *${rank}*\n` +
-    `🔥 أيام الالتزام المتتالية: *${streak} أيام*\n` +
-    `🔁 إجمالي مرات الترديد: *${total} مرة*\n\n` +
-    `🌟 إشراف الملهم التربوي: *أ. محمد الدقن* | مدارس *إتقان التربية*\n\n` +
-    `🔗 لمتابعة لوحة الطالب والشهادة التقديرية:\n${link}`
-  );
-
-  window.open(`https://api.whatsapp.com/send?text=${msg}`, '_blank');
-}
-
-  const msg = encodeURIComponent(
-    `📊 *تقرير أداء الطالب في برنامج «أذكاري زادي وعتادي»* 📊\n\n` +
-    `👤 الطالب: *${currentActiveStudent.name}*\n` +
     `🏫 الصف: *${currentActiveStudent.grade}*\n` +
     `⭐ المرتبة الإيمانية: *${rank}*\n` +
     `🔥 أيام الالتزام المتتالية: *${streak} أيام*\n` +
@@ -971,8 +985,8 @@ function renderAdminTable() {
   const todayStr = new Date().toDateString();
 
   const filtered = studentsList.filter(s => {
-    const matchesName = s.name.toLowerCase().includes(query) || s.id.toLowerCase().includes(query);
-    const matchesGrade = gradeFilter === "ALL" || s.grade.includes(gradeFilter);
+    const matchesName = (s.name || "").toLowerCase().includes(query) || (s.id || "").toLowerCase().includes(query);
+    const matchesGrade = gradeFilter === "ALL" || (s.grade || "").includes(gradeFilter);
     return matchesName && matchesGrade;
   });
 
@@ -991,9 +1005,9 @@ function renderAdminTable() {
     const isDoneToday = student.lastCheckinDate === todayStr;
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><code>${student.id}</code></td>
-      <td><strong>${student.name}</strong></td>
-      <td>${student.grade}</td>
+      <td><code>${student.id || ''}</code></td>
+      <td><strong>${student.name || '(لم يحدد الاسم بعد)'}</strong></td>
+      <td>${student.grade || 'الصف الخامس الابتدائي'}</td>
       <td><span class="text-gold font-bold">${student.streak || 0}</span> أيام</td>
       <td>${student.totalCount || 0} مرة</td>
       <td>
@@ -1228,6 +1242,32 @@ function setupEventListeners() {
         saveStudentsData();
         updateStudentUI();
         renderActiveDhikr();
+      }
+    });
+  }
+
+  const saveStudentNameBtn = document.getElementById("saveStudentNameBtn");
+  if (saveStudentNameBtn) {
+    saveStudentNameBtn.addEventListener("click", () => {
+      if (studentNameInputTop && studentNameInputTop.value.trim()) {
+        currentActiveStudent.name = studentNameInputTop.value.trim();
+        saveStudentsData();
+        updateStudentUI();
+        showToast(`تم تثبيت اسم الطالب بنجاح: ${currentActiveStudent.name} ✓`);
+      } else {
+        showToast("يرجى كتابة اسم الطالب أولاً");
+        if (studentNameInputTop) studentNameInputTop.focus();
+      }
+    });
+  }
+
+  const btnQuickEditName = document.getElementById("btnQuickEditName");
+  if (btnQuickEditName) {
+    btnQuickEditName.addEventListener("click", () => {
+      if (studentNameInputTop) {
+        studentNameInputTop.focus();
+        studentNameInputTop.select();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     });
   }
